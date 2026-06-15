@@ -12,7 +12,7 @@ This repository documents the analysis and deliverables from a UW Clean Energy I
 |---|---|
 | Rachel Gates | PGST Energy Program Manager (primary client contact) |
 | Daniel Schwartz | Faculty Advisor, UW Clean Energy Institute |
-| Bosong Li | Senior Staff Scientist, WA Clean Energy Testbeds (PSE Flex Battery) |
+| Bosong Li | Senior Staff Scientist, WA Clean Energy Testbeds |
 
 ---
 
