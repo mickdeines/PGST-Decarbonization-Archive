@@ -1,52 +1,80 @@
 # PGST Decarbonization Archive
 
-Final project archive for the UW CEI Community Capstone in partnership with the Port Gamble S'Klallam Tribe (PGST), completed June 2026.
+This repository documents the analysis and deliverables from a UW Clean Energy Institute Community Capstone project completed in June 2026, in partnership with the Port Gamble S'Klallam Tribe (PGST). The project evaluated decarbonization options for the PGST administrative campus, with a focus on replacing the propane boiler serving the Longhouse and Career Education Center (CEC).
 
-**Project team:** Mick Deines, Hannah Chavla, Marion Garabedian, Naudia Watkins, Samantha Kravitz  
-**Faculty advisor:** Prof. Daniel Schwartz, UW Clean Energy Institute  
-**Client contact:** Rachel Gates, PGST Energy Program Manager
+**Recommendation:** Standard air-to-water heat pumps (AWHPs) paired with an 80 kW rooftop PV array. This eliminates approximately 58 tCO₂e/year (41% of campus propane emissions) and produces the lowest 25-year life-cycle cost of any scenario evaluated.
 
 ---
 
-## What This Project Does
+## Key Contacts
 
-Evaluates decarbonization pathways for the PGST administrative campus, focusing on replacing the propane boiler serving the Longhouse and Career Education Center. Three heating technologies were analyzed (electric boiler, high-temperature air-to-water heat pumps, and standard air-to-water heat pumps) alongside rooftop PV and battery storage, using NREL's REopt optimization tool.
-
-**Bottom line:** Standard AWHPs paired with an 80 kW rooftop PV array are the recommended pathway — the only full-cost scenario that beats the propane boiler baseline over 25 years, reducing campus propane emissions by ~58 tCO₂e/yr.
-
----
-
-## Repository Structure
-├── report/                   # Final report and design statement (PDF + DOCX)
-├── reopt-profiles/           # REopt-ready load profiles and COP tables
-├── design-matrix/            # REopt scenario design matrix (heating × PV × battery × rate structure)
-├── raw-data/                 # Source propane delivery records and PSE electricity interval data
-├── presentations/            # Meeting slide decks from throughout the project (Jan–Jun 2026)
-└── archive/                  # Working files, old notebooks, and superseded REopt attempts
+| Name | Role |
+|---|---|
+| Rachel Gates | PGST Energy Program Manager (primary client contact) |
+| Daniel Schwartz | Faculty Advisor, UW Clean Energy Institute |
+| Bosong Li | Senior Staff Scientist, WA Clean Energy Testbeds (PSE Flex Battery) |
 
 ---
 
-## Key Files
+## How to Navigate This Repo
+
+Start with `deliverables/` for the final outputs. Everything else supports or traces back to those documents.
+
+### `deliverables/`
+Final client-facing outputs.
+- `PGST_Final_Report.docx` — primary deliverable; includes all findings, recommendations, and a full technical appendix
+- `PGST_Design_Statement.docx` — project scope document from April 2026
+- `PGST_Capstone_Poster.pptx` — poster presented at the CEI Community Capstone Showcase (June 2026)
+- `PGST_Site_Survey_Map.pdf` — campus map annotated with propane loads and solar potential by building
+- `PGST_Survey_Spreadsheet.xlsx` — campus-wide decarbonization survey data underlying Appendix J of the report
+
+### `analysis/`
+Python notebooks and supporting files. Numbered in workflow order. Notebooks are stored here as static references; they were developed and run in Google Colab against the companion data repository (see below).
 
 | File | Description |
-|------|-------------|
-| `report/PGST_Final_Report.pdf` | Primary deliverable |
-| `design-matrix/Boiler_REopt_Design_Matrix.xlsx` | All REopt scenarios, inputs, and outputs |
-| `reopt-profiles/Propane input loads (MMBtu-hr)/` | Hourly boiler load profiles fed into REopt |
-| `reopt-profiles/ASHP input COPs/` | COP vs. temperature tables for each heating technology |
-| `raw-data/Port_Gamble_Ferrell_Gas_Consumption.xlsx` | Propane delivery records (2005–2025) |
-| `raw-data/PSE_meter_23-24.csv` / `PSE_meter_24-25.csv` | 15-minute electricity interval data |
+|---|---|
+| `01_ERA5_Temp_Profile.ipynb` | Downloads and processes hourly ERA5 temperature data at the PGST site coordinates |
+| `02_Propane_regression.ipynb` | Piecewise linear regression of propane delivery records against outdoor temperature; establishes heating vs. weather-independent baseline loads |
+| `03_Propane_device_allocation.ipynb` | Bottom-up hourly propane allocation across all campus devices using nameplate capacity, duty cycle, and occupancy schedules |
+| `04_Propane_Disaggregation_Figures.ipynb` | Produces all figures related to propane disaggregation (Figure 2.1 and Appendix C figures) |
+| `05_Propane_price_escalation.ipynb` | Fits historical Ferrell Gas pricing data (2016–2025) to estimate propane escalation rate used in REopt |
+| `06_ASHP_Temperature_Bins.ipynb` | Bins outdoor temperature data to characterize heating load distribution; informs AWHP sizing and COP weighting |
+| `07_ASHP_Electric_Load_Profiles.ipynb` | Converts boiler propane load profiles into AWHP and electric boiler electricity demand profiles using COP curves from the Nyle Alectro manual |
+| `08_REopt_ready_profiles.ipynb` | Assembles and exports final hourly load profiles (propane and electricity) formatted for REopt upload |
+| `09_FCU_compatibility.ipynb` | Models fan coil unit heat output at 190°F and 140°F EWT; determines FCU area scaling factor and sizing requirements for standard AWHP retrofit |
+| `09a_Fan_Coil_HX_Compatibility.xlsx` | Supporting heat exchanger calculations for `09_FCU_compatibility.ipynb` |
+| `10_Heating_Scenarios_Cost_Comparison.ipynb` | Reads REopt scenario outputs from the design matrix and produces all cost comparison figures (Figures 5.1–5.5) |
+| `11_Sensitivity_Analysis.ipynb` | Produces sensitivity figures for PV capital cost, electricity escalation rate, and propane price (Appendix I) |
 
----
+#### Companion data repository
+Notebooks pull raw and intermediate data files from a separate Google Colab-linked repository: [github.com/mickdeines/PGST](https://github.com/mickdeines/PGST). That repo is a working data store and is not organized for external navigation, but it remains accessible and contains the full set of intermediate CSVs the notebooks depend on.
 
-## Analysis Environment
+### `reopt-profiles/`
+Hourly load profile CSVs and ASHP performance tables formatted for direct upload into REopt. Generated by `08_REopt_ready_profiles.ipynb` and `07_ASHP_Electric_Load_Profiles.ipynb`.
 
-Python notebooks, computed load profiles, and intermediate data files (ERA5 weather, pickle bundles, regression outputs) live in the companion repository: **[link to existing GitHub]**
+- `Propane_input_loads_MMBtu-hr/` — per-device propane heating loads (MMBtu/hr), 8760-hour profiles for 2024
+- `Electricity_total_loads_kW/` — total metered electricity load including heating system draw, by scenario
+- `Electricity_input_loads_kW/` — heating system electricity draw only, by scenario (used to isolate heating contribution)
+- `ASHP_COP_tables/` — COP and capacity factor tables for the standard AWHP (140°F LWT), HT-AWHP (170°F LWT), and electric boiler; derived from the Nyle Alectro manual (`raw-data/spec-sheets/`)
 
-That repo is the full computation environment; this one is the archival deliverable package.
+### `design-matrix/`
+- `REopt_Design_Matrix_and_Results.xlsx` — full scenario matrix documenting every REopt run: inputs, selected PV/battery sizes, and 25-year life-cycle cost outputs. This is the primary record of REopt results.
 
----
+### `raw-data/`
+Source data used as inputs to the analysis.
 
-## License
+- `pse/` — PSE 15-minute interval electricity data (Oct 2023–Sep 2025) and monthly billing PDFs for the CEC/Longhouse meter
+- `site-docs/` — PGST Comprehensive Climate Action Plan, Longhouse microgrid feasibility study, propane appliance inventory, and solar site survey data from Feb 2026 site visit
+- `spec-sheets/` — Nyle Alectro heat pump manual (source for all AWHP COP curves) and Imperial Range spec sheet (used in cooking range comparison, Appendix E)
 
-CC0 1.0 Universal — public domain dedication. No rights reserved.
+### `site-visit/`
+Documentation from the February 3, 2026 site visit to the Longhouse and CEC.
+- `Full Site Visit Information.docx` — complete notes and photos
+- `Summarized_Site_Documentation.docx` — condensed version covering key observations relevant to the design
+
+### `meetings/`
+- `slide-decks/` — presentation decks from client meetings with PGST (January–May 2026)
+- `meeting-notes/` — notes from all team, advisor, and client meetings (January–June 2026)
+
+### `archive/`
+- `(OLD) PGST Calculations Workbook.xlsx` — early consolidated calculations workbook; retained for reference only. Superseded by the notebooks and design matrix.
